@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "LDDCharacter.h"
+#include "LDD_NPC.h"
 #include "PaperFlipbookComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -9,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
+#include "Components/BoxComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
@@ -71,13 +73,32 @@ ALDDCharacter::ALDDCharacter()
     // 	TextComponent->SetRelativeRotation(FRotator(0.0f, 90.0f, 0.0f));
     // 	TextComponent->SetupAttachment(RootComponent);
 
+
+	NPCDetectorCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("NPCDetectorCollider"));
+	NPCDetectorCollider->SetupAttachment(RootComponent);
+
+
 	// Enable replication on the Sprite component so animations show up when networked
 	GetSprite()->SetIsReplicated(true);
 	bReplicates = true;
+
+
+
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Animation
+
+void ALDDCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	if (IsValid(NPCDetectorCollider))
+	{
+		NPCDetectorCollider->OnComponentBeginOverlap.AddDynamic(this, &ALDDCharacter::NPCOnBeginOverlap);
+		NPCDetectorCollider->OnComponentEndOverlap.AddDynamic(this, &ALDDCharacter::NPCOnEndOverlap);
+	}
+	
+}
 
 void ALDDCharacter::UpdateAnimation()
 {
@@ -111,7 +132,10 @@ void ALDDCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindAxis("MoveRight", this, &ALDDCharacter::MoveRight);
 
 	PlayerInputComponent->BindAxis("MoveFoward", this, &ALDDCharacter::MoveFoward);
+
 	PlayerInputComponent->BindAxis("RotateCamera", this, &ALDDCharacter::RotateCamera);
+
+	PlayerInputComponent->BindAction("Interact", IE_Pressed, this, &ALDDCharacter::Interact);
 
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ALDDCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ALDDCharacter::TouchStopped);
@@ -139,8 +163,12 @@ void ALDDCharacter::RotateCamera(float Value)
 	BP_RotateCamera(Value);
 }
 
-void ALDDCharacter::Interact(float Value)
+void ALDDCharacter::Interact()
 {
+	if (CurrentNPCReference != nullptr)
+	{
+		CurrentNPCReference->BeginDialogue();
+	}
 }
 
 void ALDDCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
@@ -176,5 +204,37 @@ void ALDDCharacter::UpdateCharacter()
 			Controller->SetControlRotation(FRotator(0.0f, 0.0f, 0.0f));
 		}
 		*/
+	}
+}
+
+void ALDDCharacter::NPCOnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == this)
+	{
+		return;
+	}
+
+	if (IsValid(OtherActor))
+	{
+		ALDD_NPC* PossibleNPC = Cast<ALDD_NPC>(OtherActor);
+		if (IsValid(PossibleNPC))
+		{
+			CurrentNPCReference = PossibleNPC;
+		}
+	}
+}
+
+void ALDDCharacter::NPCOnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (IsValid(OtherActor))
+	{
+		ALDD_NPC* PossibleNPC = Cast<ALDD_NPC>(OtherActor);
+		if (IsValid(PossibleNPC))
+		{
+			if (CurrentNPCReference != nullptr)
+			{
+				CurrentNPCReference = nullptr;
+			}
+		}
 	}
 }
