@@ -111,6 +111,7 @@ void ALDDCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInput
 	PlayerInputComponent->BindAxis("MoveRight", this, &ALDDCharacter::MoveRight);
 
 	PlayerInputComponent->BindAxis("MoveFoward", this, &ALDDCharacter::MoveFoward);
+	PlayerInputComponent->BindAxis("RotateCamera", this, &ALDDCharacter::RotateCamera);
 
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ALDDCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ALDDCharacter::TouchStopped);
@@ -121,12 +122,25 @@ void ALDDCharacter::MoveRight(float Value)
 	/*UpdateChar();*/
 
 	// Apply the input to the character motion
-	AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Value);
+	//AddMovementInput(FVector(1.0f, 0.0f, 0.0f), Value);
+	//AddMovementInput(GetActorForwardVector() * Value);
+	AddMovementInput(GetActorRightVector() * Value);
 }
 
 void ALDDCharacter::MoveFoward(float Value)
 {
-	AddMovementInput(FVector(0.0f, 1.0f, 0.0f), Value);
+	//AddMovementInput(FVector(0.0f, 1.0f, 0.0f), Value);
+	//AddMovementInput(GetActorRightVector()*Value);
+	AddMovementInput(GetActorForwardVector() * Value);
+}
+
+void ALDDCharacter::RotateCamera(float Value)
+{
+	BP_RotateCamera(Value);
+}
+
+void ALDDCharacter::Interact(float Value)
+{
 }
 
 void ALDDCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
@@ -152,6 +166,7 @@ void ALDDCharacter::UpdateCharacter()
 	// Set the rotation so that the character faces his direction of travel.
 	if (Controller != nullptr)
 	{
+		/*
 		if (TravelDirection < 0.0f)
 		{
 			Controller->SetControlRotation(FRotator(0.0, 180.0f, 0.0f));
@@ -160,5 +175,6 @@ void ALDDCharacter::UpdateCharacter()
 		{
 			Controller->SetControlRotation(FRotator(0.0f, 0.0f, 0.0f));
 		}
+		*/
 	}
 }
