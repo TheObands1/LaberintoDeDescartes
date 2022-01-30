@@ -16,6 +16,10 @@ UCLASS(minimalapi)
 class ALDDGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
+
 public:
 	ALDDGameMode();
+
+protected:
+	virtual void BeginPlay() override;
 };
