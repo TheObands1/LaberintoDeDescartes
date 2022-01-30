@@ -80,6 +80,9 @@ protected:
 
 	void RotateCamera(float Value);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_Interact();
+
 	void Interact();
 
 	UFUNCTION(BlueprintImplementableEvent)

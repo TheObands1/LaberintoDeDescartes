@@ -191,6 +191,7 @@ void ALDDCharacter::Interact()
 	if (CurrentNPCReference != nullptr)
 	{
 		CurrentNPCReference->BeginDialogue();
+		BP_Interact();
 	}
 }
 
