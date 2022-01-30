@@ -6,6 +6,7 @@
 #include "Components/BillboardComponent.h"
 #include "LDD/LDDGameMode.h"
 #include "Kismet/GameplayStatics.h"
+#include "LDD/LDD_NPC.h"
 
 // Sets default values
 ALDD_LevelMusic::ALDD_LevelMusic()
@@ -28,7 +29,14 @@ ALDD_LevelMusic::ALDD_LevelMusic()
 void ALDD_LevelMusic::BeginPlay()
 {
 	Super::BeginPlay();
+}
 
+void ALDD_LevelMusic::StopLevelMusic()
+{
+	if (IsValid(MusicAudioComponent))
+	{
+		MusicAudioComponent->Stop();
+	}
 }
 
 // Called every frame

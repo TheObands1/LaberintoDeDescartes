@@ -11,6 +11,9 @@
  */
 
 class UPaperFlipbook;
+class UAudioComponent;
+class USoundCue;
+class ALDD_LevelMusic;
 
 UCLASS()
 class LDD_API ALDD_NPC : public APaperCharacter
@@ -22,6 +25,11 @@ protected:
 	// The animation to play while idle (standing still)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UPaperFlipbook* IdleAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio")
+	USoundCue* EmotionMusic;
+	
+	ALDD_LevelMusic* LevelMusicRef;
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")

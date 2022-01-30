@@ -10,6 +10,7 @@ class UAudioComponent;
 class UBillboardComponent;
 class ALDD_GameMode;
 class ALDD_Character;
+class ALDD_NPC;
 
 UCLASS()
 class LDD_API ALDD_LevelMusic : public AActor
@@ -34,6 +35,11 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+
+public:
+	UFUNCTION()
+	void StopLevelMusic();
 
 public:	
 	// Called every frame
