@@ -11,6 +11,8 @@
 #include "GameFramework/Controller.h"
 #include "Camera/CameraComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 
@@ -77,6 +79,11 @@ ALDDCharacter::ALDDCharacter()
 	NPCDetectorCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("NPCDetectorCollider"));
 	NPCDetectorCollider->SetupAttachment(RootComponent);
 
+	StepSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("StepSoundComponent"));
+	StepSoundComponent->SetupAttachment(RootComponent);
+
+	JumpSoundComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("JumpSoundComponent"));
+	JumpSoundComponent->SetupAttachment(RootComponent);
 
 	// Enable replication on the Sprite component so animations show up when networked
 	GetSprite()->SetIsReplicated(true);
@@ -104,9 +111,18 @@ void ALDDCharacter::UpdateAnimation()
 {
 	const FVector PlayerVelocity = GetVelocity();
 	const float PlayerSpeedSqr = PlayerVelocity.SizeSquared();
+	UPaperFlipbook* DesiredAnimation;
 
 	// Are we moving or standing still?
-	UPaperFlipbook* DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
+	if (PlayerSpeedSqr > 0.0f) 
+	{
+		DesiredAnimation = RunningAnimation;
+		StepSoundComponent->Play();
+	}
+	else
+	{
+		DesiredAnimation = IdleAnimation;
+	}
 	if( GetSprite()->GetFlipbook() != DesiredAnimation 	)
 	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
@@ -127,7 +143,7 @@ void ALDDCharacter::Tick(float DeltaSeconds)
 void ALDDCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ALDDCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ALDDCharacter::MoveRight);
 
@@ -156,6 +172,13 @@ void ALDDCharacter::MoveFoward(float Value)
 	//AddMovementInput(FVector(0.0f, 1.0f, 0.0f), Value);
 	//AddMovementInput(GetActorRightVector()*Value);
 	AddMovementInput(GetActorForwardVector() * Value);
+}
+
+void ALDDCharacter::Jump()
+{
+	Super::Jump();
+
+	JumpSoundComponent->Play();
 }
 
 void ALDDCharacter::RotateCamera(float Value)

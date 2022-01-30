@@ -9,6 +9,8 @@
 class UTextRenderComponent;
 class UBoxComponent;
 class ALDD_NPC;
+class UAudioComponent;
+class USoundCue;
 
 /**
  * This class is the default character for LDD, and it is responsible for all
@@ -51,6 +53,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
 		class UPaperFlipbook* IdleAnimation;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UAudioComponent* StepSoundComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UAudioComponent* JumpSoundComponent;
+
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "References")
 	ALDD_NPC* CurrentNPCReference;
@@ -67,6 +75,8 @@ protected:
 	void MoveRight(float Value);
 
 	void MoveFoward(float Value);
+
+	virtual void Jump() override;
 
 	void RotateCamera(float Value);
 
