@@ -20,10 +20,15 @@ class LDD_API ALDD_NPC : public APaperCharacter
 protected:
 
 	// The animation to play while idle (standing still)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	UPaperFlipbook* IdleAnimation;
 
 public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings")
+	bool bHasPlayerAlreadyInteractedWithIt;
+
+public:
+	ALDD_NPC();
 
 	void BeginDialogue();
 
